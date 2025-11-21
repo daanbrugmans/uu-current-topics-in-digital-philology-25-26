@@ -1,3 +1,5 @@
+.vscode
+
 1_parsing_image_data/*.pyx
 1_parsing_image_data/levenshtein.py
 
