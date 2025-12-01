@@ -1,0 +1,334 @@
+\documentclass{article}
+% if you need to pass options to natbib, use, e.g.:
+    \PassOptionsToPackage{numbers}{natbib}
+% before loading neurips_2023
+
+\usepackage[preprint]{neurips_2023}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{graphicx}
+\usepackage{float}
+
+\title{Intelligent Interactive Systems --- Assignment 1 Report}
+
+\author{%
+  Femke van Venrooij \\
+  Rabdoud University\\
+  \texttt{\url{femke.vanvenrooij@ru.nl}} \\
+  \And
+  Daan Brugmans \\
+  Radboud University\\
+  \texttt{\url{daan.brugmans@ru.nl}} \\
+}
+
+
+\begin{document}
+
+\bibliographystyle{plainnat}
+
+\maketitle
+
+\section{Task 1 Questions}
+
+\begin{itemize}
+    \item \textbf{Were all faces extracted successfully?} \\
+    The code used was from lab 1, which indicates all faces and certainty percentages. Through this all faces were found and delineated in the images. The only head were the face was only extracted with very low certainty is in image 11: handshake. This face is almost completely turned around and no facial features are visible. This was thus not counted as a face.
+    \item \textbf{Were there any false positives?} \\
+    Without threshold there were many false positives. Things that were extracted were plants, hands and other random objects. 
+    \item \textbf{If there are false positives, where would you set a confidence threshold to ensure that all faces are extracted for an image, but all false positives are filtered out? Does this threshold work for all images in the dataset?} \\
+    The confidence threshold for all the faces was very high, which prompted setting the threshold to 90\%. Only the previously mentioned image 11 was missing the turned head with this threshold. All false positives were removed through this threshold.
+    \item \textbf{In your report, provide for each image: all actual faces detected and the false-detect crop with highest confidence score below your threshold with confidence numbers.} \\
+    The exact certainty percentages can be found in Table \ref{tab:face_detection}. In short, all faces were successfully detected (not counting the face that is turned around) and all false positives fell far below the decided threshold. Notable is that the potted plant in image "tablet" achieved a confidence value of 71.67\%.
+    \item \textbf{Explain if a universal threshold can be used for all images, propose a number and motivate.} \\
+    For the 20 images provided, a threshold of 90\% was enough, so it can be argued that this threshold would work universally across all images.
+    The results show that this returns only true positives.
+    This threshold should be evaluated with additional data, however, and the suspicion is that the more the dataset grows, the more there will be an increased need for image-specific thresholds.
+    \item \textbf{Try to explain a few of the false positives - why could FaceDetector fail on it and can you propose any way to prevent this?}
+    \begin{itemize}
+        \item The potted plant in image "tablet" is a false positive with a notably high confidence. FaceDetector places the determinants of the potted plant's "face" in a very natural way, as if it is looking straight at the camera. The suspicion is that the high confidence may be caused by a combination of the potted plant being off-focus in the background, the light on the potted plant showing a natural distribution not too unlike a face, and the color of the pot itself, which somewhat aligns with the range of the human skin colors. Of course, there are no actual facial features to be found here, so weighing these more heavily into determining the presence of a face could potentially assist in preventing false positives.
+        \item In the image "laughing-couple", the area between the man's torso and arm achieves a confidence value of 26.27\%. This may also be caused by the area being off-focus and that the way how light is distributed over the area may give it some credibility towards being a face according to the model. However, that is seemingly where the explanation towards this false positive ends. The lack of any facial features should make clear that this is not a face, and since the confidence value is still low, FaceDetector takes that into account.
+        \item In the image "grandparents", a similar situation causes a false positive of 33.4\%. This is probably also caused by the area being off-focus and due to how light is distributed across the area, which would give it some characteristics of a face. Since the confidence value is still low, however, it works as there are no concrete facial features to go off of.
+    \end{itemize}
+\end{itemize}
+
+\begin{table}[H]
+\begin{tabular}{l||l|l|l}
+\textbf{Image}   & \textbf{faces detected} & \textbf{confidence faces}                                                               & \textbf{highest false positive} \\ \hline \hline
+Arguing          & 2/2                     & \begin{tabular}[c]{@{}l@{}}99.88\% ;  99.63\%\end{tabular}                            & 3.14\%                          \\ 
+Back-off         & 1/1                     & 99.98\%                                                                                 & 11.10\%                         \\ 
+bills            & 2/2                     & \begin{tabular}[c]{@{}l@{}}99.96\% ; 98.50\%\end{tabular}                               & 24.17\%                         \\ 
+bullied          & 2/2                     & \begin{tabular}[c]{@{}l@{}}99.96\% ; 99.87\%\end{tabular}                               & 8.23\%                          \\ 
+business         & 1/1                     & 99.93\%                                                                                 & 2.14\%                          \\ 
+by-the-sea       & 2/2                     & \begin{tabular}[c]{@{}l@{}}99.61\% ;  99.26\%\end{tabular}                               & 10.22\%                         \\
+claws            & 1/1                     & 99.96\%                                                                                 & 2.99\%                          \\ 
+disagreement     & 3/3                     & \begin{tabular}[c]{@{}l@{}}99.98\% ;  99.97\% ; 99.96\%\end{tabular}                     & 2.24\%                          \\ 
+enjoying-the-sun & 1/1                     & 99.87\%                                                                                 & 19.31\%                         \\ 
+grandparents     & 3/3                     & \begin{tabular}[c]{@{}l@{}}99.98\% ;  99.95\% ; 99.80\%\end{tabular}                     & 33.4\%                          \\ 
+handshake        & 3/4*                    & \begin{tabular}[c]{@{}l@{}}99.89\% ; 99.88\% ; 98.38\%\end{tabular}                     & 14.54\%                         \\ 
+happy-man        & 1/1                     & 99.98\%                                                                                 & 4,61\%                          \\ 
+laughing-couple  & 2/2                     & \begin{tabular}[c]{@{}l@{}}99.97\% ; 90.7\%\end{tabular}                                & 26,27\%                         \\ 
+pain             & 1/1                     & 99.96\%                                                                                 & 2.23\%                          \\ 
+piggyback        & 2/2                     & \begin{tabular}[c]{@{}l@{}}99.98\% ; 99.96\%\end{tabular}                               & 4.61\%                          \\ 
+sad-man          & 1/1                     & 99.97\%                                                                                 & 3.86\%                          \\ 
+sad-woman        & 1/1                     & 99.74\%                                                                                 & 2.42\%                          \\ 
+students         & 5/5                     & \begin{tabular}[c]{@{}l@{}}99.95\% ; 99.95\% ; 99.94\% ; 99.89\% ; 99.76\%\end{tabular} & 2.54\%                          \\ 
+tablet           & 1/1                     & 99.96\%                                                                                 & 71.67\%                         \\ 
+thumbs-up        & 1/1                     & 99.97\%                                                                                 & 17.01\%                        
+\end{tabular}
+\caption{Confidence scores for face detection on images}
+\label{tab:face_detection}
+\end{table}
+
+\section{Task 2 Questions}
+\subsection{Model Choice}
+For the models the first choice was made to replace the SVM of lab1 with an LDA classifier. Even though SVM works in higher dimensions, LDA was determined to be suitable since landmark features are quite low dimensional \cite{cabansag2025lecture13}. Next to that LDA is a fast method. In order to implement this method, the provided code from lab1 for svm was used and was adapted to LDA. To compare with the original code, svm was also analysed with a confusion matrix. Since only the labels of the emotions were used for face delineation, valence and arousal were left out of analysis.
+
+For the second model, a model from HuggingFace was used and trained. Specifically, a finetuned a Vision Transformer (ViT) model \cite{animageis2021kolesnikov} was implemented on the dataset using LoRA \cite{hu2021loralowrank}. This ViT model was chosen since a comparison between the older, less computationally intensive LDA and a modern transformer-based model could lead to interesting results. Besides training a ViT model for emotion classification ourselves, an out-of-the-box ViT model from HuggingFace was used for comparison since it classifies the same emotions. This model is called the ``Dima806`` model, after its creator\footnote{\url{https://huggingface.co/dima806/facial_emotions_image_detection}}. Since this model was already finetuned for classification of the same range of emotions as our dataset, it could be used without further finetuning and tested its results.
+
+\subsection{Model Performance}
+For all models the accuracy was checked on the test set, this is reported in Table \ref{tab:accuracy}. As can be seen there is a large variety with the ViT model with 20 epochs reaching the highest performance. 
+\begin{table}[H]
+\centering
+\begin{tabular}{l|c}
+\textbf{Method} & \textbf{Accuracy} \\ \hline
+LDA &  0.7313\\ 
+SVM (Linear) &  0.3695\\ 
+ViT model (5 epochs) & 0.5174\\ 
+ViT model (20 epochs) &  0.8108\\ 
+Dima806 &  0.6139\\
+\end{tabular}
+\caption{Accuracy of Different Classification Methods on a Test Set}
+\label{tab:accuracy}
+\end{table}
+
+\subsection{Confusion Matrices}
+For all models the confusion matrices of the test results are reported below. The differences are discussed in the next section. 
+\begin{table}[H]
+\centering
+\begin{tabular}{c|ccccccc}
+\textbf{Actual $\backslash$ Predicted} & neutral & happy & sad & surprise & fear & disgust & anger \\ \hline
+neutral & 77 & 6 & 5 & 3 & 8 & 9 & 2 \\
+happy & 4 & 93 & 0 & 0 & 0 & 0 & 0 \\
+sad & 8 & 0 & 13 & 0 & 1 & 2 & 0 \\
+surprise & 2 & 0 & 0 & 49 & 0 & 1 & 3 \\
+fear & 5 & 0 & 3 & 0 & 11 & 1 & 1 \\
+disgust & 7 & 0 & 2 & 3 & 0 & 12 & 3 \\
+anger & 8 & 0 & 1 & 15 & 0 & 3 & 26 \\
+\end{tabular}
+\caption{Confusion Matrix LDA (Accuracy: 0.7261)}
+\label{tab:LDA}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{c|ccccccc}
+\textbf{Actual $\backslash$ Predicted} & neutral & happy & sad & surprise & fear & disgust & anger \\ \hline
+neutral & 72 & 36 & 0 & 0 & 0 & 0 & 2 \\
+happy & 29 & 68 & 0 & 0 & 0 & 0 & 0 \\
+sad & 18 & 6  & 0 & 0 & 0 & 0 & 0 \\
+surprise & 23 & 30 & 0 & 0 & 0 & 0 & 2 \\
+fear & 12 & 7  & 0 & 0 & 0 & 0 & 2 \\
+disgust & 19 & 7  & 0 & 0 & 0 & 0 & 1 \\
+anger & 40 & 10 & 0 & 0 & 0 & 0 & 3 \\
+\end{tabular}
+\caption{Confusion Matrix SVM (Accuracy: 0.3695)}
+\label{tab:SVM}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{c|ccccccc}
+\textbf{Actual $\backslash$ Predicted} & neutral & happy & sad & surprise & fear & disgust & anger \\ \hline
+neutral & 18 & 1 & 0 & 0 & 4 & 8 & 5 \\
+happy & 1 & 0 & 5 & 0 & 2 & 5 & 4 \\
+sad & 6 & 0 & 0 & 0 & 0 & 9 & 0 \\
+surprise & 0 & 0 & 1 & 55 & 11 & 1 & 0 \\
+fear & 0 & 0 & 22 & 0 & 15 & 33 & 0 \\
+disgust & 0 & 0 & 2 & 0 & 0 & 14 & 0 \\
+anger & 4 & 0 & 0 & 1 & 0 & 0 & 32 \\
+\end{tabular}
+\caption{Custom ViT Model (5 epochs) — Accuracy: 0.5174}
+\label{tab:ViT5}
+\end{table}
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{c|ccccccc}
+\textbf{Actual $\backslash$ Predicted} & neutral & happy & sad & surprise & fear & disgust & anger\\ \hline
+neutral & 17 & 3 & 2 & 1 & 2 & 4 & 7 \\
+happy & 2 & 10 & 0 & 0 & 0 & 3 & 2 \\ 
+sad & 0 & 0 & 10 & 0 & 4 & 1 & 0 \\
+surprise & 0 & 0 & 1 & 65 & 2 & 0 & 0 \\
+fear & 0 & 0 & 2 & 0 & 63 & 5 & 0 \\
+disgust & 0 & 0 & 0 & 0 & 6 & 10 & 0 \\ 
+anger & 1 & 0 & 0 & 1 & 0 & 0 & 35 \\
+\end{tabular}
+\caption{Custom ViT Model (20 epochs) — Accuracy: 0.8108}
+\label{tab:ViT20}
+\end{table}
+
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{c|ccccccc}
+\textbf{Actual $\backslash$ Predicted} & neutral & happy & sad & surprise & fear & disgust & anger  \\ \hline
+neutral & 18 & 0 & 3 & 2 & 10 & 0 & 3 \\
+happy & 4 & 0 & 2 & 1 & 8 & 1 & 1 \\
+sad & 2 & 0 &3 & 0 & 9 & 0 & 1 \\
+surprise & 0 & 0 & 1 & 57 & 8 & 0 & 2 \\
+fear & 5 & 0 & 3 & 8 & 51 & 3 & 0 \\
+disgust & 1 & 0 & 0 & 0 & 10 & 5 & 0 \\
+anger & 0 & 0 & 8 & 1 & 3 & 0 & 25 \\
+\end{tabular}
+\caption{Dima806 Model — Accuracy: 0.6139}
+\label{tab:Dima806}
+\end{table}
+
+\subsection{Model Comparison}
+The LDA model generally performs well on all emotions, with the most varied misclassifications being in the neutral class. This could be because neutral could have similarity to most of the other emotion classes. LDA is a very fast technique, that compared to the other methods has a good time-performance trade-off.  \\
+SVM however, only predicts Neutral, Happy and Anger. These classes are overrepresented in the data, with Happy and Neutral making up around 50\% of the data. This means that the implementation of SVM used here is too sensitive to class imbalance, which is a common problem in SVM if it is not directly accounted for \cite{he2013imbalanced}.\\
+The custom ViT model was finetuned twice: once for 5 epochs and once for 20 epochs. Training for 5 epochs took 8 minutes on an NVIDIA A6000 GPU, and thus about 36 minutes for 20 epochs. After 5 epochs, the model has trouble identifying fear, and often predicts a fearful face to be one either of sadness or disgust. This issue is resolved after 20 epochs, and the highest accuracy score among all models is achieved. However, although the LDA's accuracy is only about 9 percent point lower, it was much less computationally intensive to train, and, in thus, has a better ratio of performance-to-resource requirements. \\ 
+The Dima806 model actually seems to account for the imbalance dataset too much as it samples more from smaller classes. As can be seen in table \ref{tab:Dima806}, Happy is not classified once despite being present in the test set. For this model no train time can be specified, since its parameters were directly used.
+
+Across all models, it seems that a neutral emotion is sometimes classified as any one of the other emotions. This may be because the boundaries of when a face can be considered to look ``neutral`` can be vague, and a neutral face in rest likely doesn't have as many identifiable characteristics as a face with any other emotion. One way in which this might have been alleviated is by incorporating the valence and arousal values provided in the datasheet into our dataset, although this would require the use of different HuggingFace models than ViT.
+
+\section{Contribution Statement}
+The following is a contribution statement regarding the workload of both project authors. Both authors provide a list of the work they did.
+% The table below shows a list of tasks performed for the completion of Assignment 1 and which author worked on what parts.
+\begin{table}[H]
+    \centering
+    \begin{tabular}{p{3cm}|p{10cm}}
+    \textbf{Contributor} & \textbf{Contributions} \\ \hline
+    Femke & 
+    Code part 1 \newline
+    Table part 1 + answers 1-3 \newline
+    preprocessing adaptation from lab1 \newline
+    LDA implementation part 2 \newline
+    Questions part 2 relating to LDA and SVM \newline
+    Accuracy and Confusion matrices tables part 2 \newline
+    Final proofreading and formatting\\ \hline
+    Daan & 
+    General construction and refactorings of the notebook \newline
+    Creation of dataset with train/val/test splits \newline
+    Implementation of finetuning a pretrained ViT model using LoRA and actually finetuning it (\texttt{deep\_model.py}) \newline
+    Evaluation of the custom ViT model and the Dima806 model on the dataset \newline
+    Answers to the final 3 questions of task 1 \newline
+    Parts of the task 2 questions relating to the ViT models \\
+    \end{tabular}
+    \caption{Contributions of Team Members}
+    \label{tab:contributions}
+\end{table}
+
+% \begin{table}[H]
+%     \centering
+%     \begin{tabular}{c|c}
+%     \textbf{Method} & \textbf{Accuracy} \\ \hline
+%          &  \\
+%          & 
+%     \end{tabular}
+%     \caption{Caption}
+%     \label{tab:placeholder}
+% \end{table}
+
+% \subsection{Femke}
+% \begin{itemize}
+%     \item code part 1
+%     \item table part 1
+%     \item LDA part 2
+%     \item Questions part 2 relating to LDA 
+%     \item Tables part 2
+% \end{itemize}
+
+% \subsection{Daan}
+% \begin{itemize}
+%     \item Refactored codebase for task 1
+%     \item Final construction of the notebook
+%     \item Creation of a dataset with train/val/test splits
+%     \item Implementation of finetuning a pretrained ViT model using LoRA through HuggingFace (\texttt{deep\_model.py})
+% \end{itemize}
+
+\bibliography{refs}
+
+
+% \section{Citations}
+
+% The \verb+natbib+ package will be loaded for you by default.  Citations may be
+% author/year or numeric, as long as you maintain internal consistency.  As to the
+% format of the references themselves, any style is acceptable as long as it is
+% used consistently.
+
+% The documentation for \verb+natbib+ may be found at
+% \begin{center}
+%   \url{http://mirrors.ctan.org/macros/latex/contrib/natbib/natnotes.pdf}
+% \end{center}
+% Of note is the command \verb+\citet+, which produces citations appropriate for
+% use in inline text.  For example,
+% \begin{verbatim}
+%    \citet{hasselmo} investigated\dots
+% \end{verbatim}
+% produces
+% \begin{quote}
+%   Hasselmo, et al.\ (1995) investigated\dots
+% \end{quote}
+
+% If you wish to load the \verb+natbib+ package with options, you may add the
+% following before loading the \verb+neurips_2023+ package:
+% \begin{verbatim}
+%    \PassOptionsToPackage{options}{natbib}
+% \end{verbatim}
+
+% If \verb+natbib+ clashes with another package you load, you can add the optional
+% argument \verb+nonatbib+ when loading the style file:
+% \begin{verbatim}
+%    \usepackage[nonatbib]{neurips_2023}
+% \end{verbatim}
+
+% \section{Figures}
+
+% \begin{figure}
+%   \centering
+%   \fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
+%   \caption{Sample figure caption.}
+% \end{figure}
+
+% \section{Tables}
+
+% Note that publication-quality tables \emph{do not contain vertical rules.} We
+% strongly suggest the use of the \verb+booktabs+ package, which allows for
+% typesetting high-quality, professional tables:
+% \begin{center}
+%   \url{https://www.ctan.org/pkg/booktabs}
+% \end{center}
+% This package was used to typeset Table~\ref{sample-table}.
+
+% \begin{table}
+%   \caption{Sample table title}
+%   \label{sample-table}
+%   \centering
+%   \begin{tabular}{lll}
+%     \toprule
+%     \multicolumn{2}{c}{Part}                   \\
+%     \cmidrule(r){1-2}
+%     Name     & Description     & Size ($\mu$m) \\
+%     \midrule
+%     Dendrite & Input terminal  & $\sim$100     \\
+%     Axon     & Output terminal & $\sim$10      \\
+%     Soma     & Cell body       & up to $10^6$  \\
+%     \bottomrule
+%   \end{tabular}
+% \end{table}
+
+% \section{Math}
+% Note that display math in bare TeX commands will not create correct line numbers for submission. Please use LaTeX (or AMSTeX) commands for unnumbered display math. (You really shouldn't be using \$\$ anyway; see \url{https://tex.stackexchange.com/questions/503/why-is-preferable-to} and \url{https://tex.stackexchange.com/questions/40492/what-are-the-differences-between-align-equation-and-displaymath} for more information.)
+
+\end{document}
