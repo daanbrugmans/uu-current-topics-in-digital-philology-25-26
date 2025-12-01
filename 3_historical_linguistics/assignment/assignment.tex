@@ -100,6 +100,19 @@ I went with a normalized editing threshold of 0.6 and interpreted the results im
 \subsection{c}
 I impressionistically analyzed changes in automated cognate judgments when changing the threshold from 0.6 to both 0.5 and 0.7. Between these two, 0.6 seems to work best: 0.5 is too strict and produces more false negative cognates than 0.6 does, while 0.7 is too loose and starts to create more false positive cognates than 0.6. I also tried changing the substitution cost to various values, and a cost of 0.8 seemed to give results that might be better than the default unit cost (if only impressionistically).
 
+\subsection{d}
+Both Swedish and English show a palatilization of velar consonants: that is to say that in both languages, words that used to start with a ``k'' or a ``g'' sound had their sound changed to become softer, such as (non-IPA characters) ``tsh''/``tsj''. An example of this are the forms for SING, which starts with a hard ``k'' in Latin, but with a soft ``s'' in English and the Swedish sj-sound in Swedish.
+
+\subsection{e}
+Using a threshold of 0.6 and a substitution cost of 0.8, I received the following results:
+\begin{itemize}
+    \item English-Swedish: 0.255
+    \item English-Latin: 0.075
+    \item Swedish-Latin: 0.105
+\end{itemize}
+
+I would say that these numbers match my intuition to how closely these languages are related decently well, although I do find the overall number of cognates low overall. English and Swedish are both Germanic languages, while Latin is both an Romance language and a language that has not evolved in a long time, so I am not surprised to see that English and Swedish are much closer to each other than they are to Latin.
+
 \bibliography{refs}
 
 \end{document}
