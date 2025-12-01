@@ -54,8 +54,7 @@ def D(x, y, insertion_deletion_cost=1, substitution_cost=1):
     return d[(lx, ly)]
 
 
-# Let's check an example
-print('D("hello", "yello") has edit distance', D("hello", "yello"))
+print()
 
 
 def tab_to_dict(fn="digphil-hl-lab-mini-forms.tab"):
@@ -65,8 +64,8 @@ def tab_to_dict(fn="digphil-hl-lab-mini-forms.tab"):
 
 
 # Read the forms and cognacy information
-forms = tab_to_dict("digphil-hl-lab-mini-forms.tab")
-cognacy = tab_to_dict("digphil-hl-lab-mini-cognacy.tab")
+forms = tab_to_dict("3_historical_linguistics/digphil-hl-lab-mini-forms.tab")
+cognacy = tab_to_dict("3_historical_linguistics/digphil-hl-lab-mini-cognacy.tab")
 print("The forms for BITE are", forms["BITE"])
 for lg1, form1 in forms["BITE"].items():
     for lg2, form2 in forms["BITE"].items():
@@ -103,7 +102,7 @@ def cognate_sets(xs=["hello", "yello", "world"], t=0.5):
     return [set(cset) for cset in cognate_sets.values()]
 
 
-print(
-    'Let us divide ["hello", "yello", "world"] into cognate_sets with t = 0.5',
-    cognate_sets(xs=["hello", "yello", "world"], t=0.5),
-)
+# print(
+#     'Let us divide ["hello", "yello", "world"] into cognate_sets with t = 0.5',
+#     cognate_sets(xs=["hello", "yello", "world"], t=0.5),
+# )
