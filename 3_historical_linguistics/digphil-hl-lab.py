@@ -54,9 +54,6 @@ def D(x, y, insertion_deletion_cost=1, substitution_cost=1):
     return d[(lx, ly)]
 
 
-print()
-
-
 def tab_to_dict(fn="digphil-hl-lab-mini-forms.tab"):
     with open(fn, "r", encoding="utf-8") as f:
         rows = [row.split("\t") for row in f.read().split("\n") if row.strip()]
@@ -66,19 +63,19 @@ def tab_to_dict(fn="digphil-hl-lab-mini-forms.tab"):
 # Read the forms and cognacy information
 forms = tab_to_dict("3_historical_linguistics/digphil-hl-lab-mini-forms.tab")
 cognacy = tab_to_dict("3_historical_linguistics/digphil-hl-lab-mini-cognacy.tab")
-print("The forms for BITE are", forms["BITE"])
-for lg1, form1 in forms["BITE"].items():
-    for lg2, form2 in forms["BITE"].items():
-        if lg1 < lg2:
-            print(
-                lg1,
-                form1,
-                "and",
-                lg2,
-                form2,
-                "are cognate",
-                cognacy["BITE"][lg1] == cognacy["BITE"][lg2],
-            )
+# print("The forms for BITE are", forms["BITE"])
+# for lg1, form1 in forms["BITE"].items():
+#     for lg2, form2 in forms["BITE"].items():
+#         if lg1 < lg2:
+#             print(
+#                 lg1,
+#                 form1,
+#                 "and",
+#                 lg2,
+#                 form2,
+#                 "are cognate",
+#                 cognacy["BITE"][lg1] == cognacy["BITE"][lg2],
+# )
 
 
 def cognate_sets(xs=["hello", "yello", "world"], t=0.5):
@@ -86,7 +83,7 @@ def cognate_sets(xs=["hello", "yello", "world"], t=0.5):
     for x1 in xs:
         for x2 in xs:
             if x1 < x2:
-                dns[x1, x2] = D(x1, x2) / max(len(x1), len(x2))
+                dns[x1, x2] = D(x1, x2, substitution_cost=4 / 5) / max(len(x1), len(x2))
     cids = {}
     for pair, dn in dns.items():
         if dn <= t:
@@ -101,6 +98,21 @@ def cognate_sets(xs=["hello", "yello", "world"], t=0.5):
             cognate_sets[i + len(xs)] = [x]
     return [set(cset) for cset in cognate_sets.values()]
 
+
+for word in forms.keys():
+    print(cognate_sets(xs=forms[word].values(), t=0.6))
+    # for lg1, form1 in forms[word].items():
+    #     for lg2, form2 in forms[word].items():
+    #         if lg1 < lg2:
+    #             print(
+    #                 lg1,
+    #                 form1,
+    #                 "and",
+    #                 lg2,
+    #                 form2,
+    #                 "are cognate",
+    #                 cognacy[word][lg1] == cognacy[word][lg2],
+    #             )
 
 # print(
 #     'Let us divide ["hello", "yello", "world"] into cognate_sets with t = 0.5',

@@ -91,6 +91,14 @@ The above figure shows a tree of words where a line between words indicates that
 The above figure shows a tree of words where a line between words indicates that they are cognates, assuming a threshold pairwise distance of $t = 0.75$, based on the original pairwise distance matrix. The more closely related two words are, the lower they split in the tree. $t = 0.75$ thus gives one cognate grouping, which contains all the words of the original matrix. Although (non-IPA notation) ``dog-hunt'' exceeds the threshold, ``hunt-hond'' does not, and since the property of cognacy is transitive, ``dog-hunt'' must also be cognates.
 
 \section{Exercise 6}
+\subsection{a}
+The normalized edit distance between the English and Swedish forms of BITE is the absolute edit distance over the length of the longest form. The absolute edit distance between the English and Swedish forms is 3, and the max length of either of these forms is 5 (``bì:ta'', assuming the vowel lengthening counts as its own character), so, assuming unit costs for insertions, deletions, and substitutions, the normalized edit distance is $\frac{3}{5} = 0.6$. If vowel lengthening is not considered its own character, then the normalized edit distance would be $\frac{3}{4} = 0.75$.
+
+\subsection{b}
+I went with a normalized editing threshold of 0.6 and interpreted the results impressionistically. The automated cognate judgments seem fairly accurate, often marking English and Swedish forms of words as cognates when they are also marked so by experts, while at the same time not marking the word as a Latin cognate when they are not. The program does sometimes struggle when a cognate is shared among all languages. In these cases, Latin is excluded as a cognate when it shouldn't be, likely because the words don't look similar enough.
+
+\subsection{c}
+I impressionistically analyzed changes in automated cognate judgments when changing the threshold from 0.6 to both 0.5 and 0.7. Between these two, 0.6 seems to work best: 0.5 is too strict and produces more false negative cognates than 0.6 does, while 0.7 is too loose and starts to create more false positive cognates than 0.6. I also tried changing the substitution cost to various values, and a cost of 0.8 seemed to give results that might be better than the default unit cost (if only impressionistically).
 
 \bibliography{refs}
 
