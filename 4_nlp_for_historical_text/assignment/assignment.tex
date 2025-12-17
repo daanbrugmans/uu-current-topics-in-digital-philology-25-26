@@ -1,0 +1,84 @@
+\documentclass{article}
+% if you need to pass options to natbib, use, e.g.:
+    \PassOptionsToPackage{numbers}{natbib}
+% before loading neurips_2023
+
+\usepackage[preprint]{neurips_2023}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{graphicx}
+\usepackage{float}
+
+\title{Current Topics in Digital Philology --- \\Assignment 4: NLP for Historical Text}
+
+\author{%
+  Daan Brugmans \\
+  Radboud University\\
+  \texttt{\url{daan.brugmans@ru.nl}} \\
+}
+
+
+\begin{document}
+
+\bibliographystyle{plainnat}
+
+\maketitle
+
+\section{Subtask 1: Old Bailey}
+\subsection{1}
+\begin{enumerate}
+    \item In \textit{The Proceedings of the Old Bailey} of \textit{6th January 1831} (\url{https://www.oldbaileyonline.org/record/18310106}), on page 135, Edward Williams had their belongings stolen by Thomas Adams. In this passage, it is stated that Edward and Mr. Charles Dalby, who are in a partnership, ``[\dots] are woollen warehousemen''. Edward states, regarding the woollen cloth stolen by Thomas Adams, that ``[he] had seen this piece of cloth two or three days previous to its being taken - it was in the inner warehouse;''. Edward also states that the rent of the house he lives in ``[\dots] is paid by the firm'', which would imply that he earns a living by being a woollen warehouseman.
+    \item In the same case, William Hile states that ``[they are] a constable of Bassishaw ward''. He then describes how his role as constable is relevant to the case at hand: ``[\dots] I was passing by the gate of the prosecutors' premises; (there is a yard leading to their premises) - I saw the prisoner and another coming along the yard- they were inside the yard, coming from the warehouse; the other had the cloth on his shoulder [\dots]''. Although William does not explicitly state that he earns an income from his role as a constable, the statement ``I am a constable of Bassishaw ward'' does seem to imply that he is compensated for his work.
+    \item Also within the same case, Isaac Mander states that ``[they are] book-keeper in a broker's counting-house''. As they do the book-keeping for a different person, a broker, in that different person's counting-house, it seems like Isaac has a job as a book-keeper and earns a living this way.
+\end{enumerate}
+
+\subsection{2}
+\begin{itemize}
+    \item When searching for all records where the offense was ``concealing a birth'', we get records dating from the years 1836 to 1913, thus ``concealing a birth'' was a crime attested in the period 1836 - 1913.
+    \item Overall, a lot of cases of ``concealing a birth'' are found not guilty. Of those who are found guilty, early records often show a punishment of confinement for several months, often 3, 4, or 6 months, but sometimes up to a year. In later records, the punishment is often either a brief imprisonment of a few days or weeks, or of ``hard labor'', which can last weeks to a few months.
+    \item The fact that concealing a birth was considered a crime would imply that at least certain levels of government found the birth of a child important enough to be something that should be registered. However, given the amount of times defendants of the crime are considered not guilty by the court, it would seem that the crime isn't considered severe, especially in later times where punishments would consist of imprisonment of a few days or even a single day. One reason why concealing a birth might have been a crime is due to economical laws, such as tax laws, which might have depended on the size of a family, or laws regarding population size and control.
+\end{itemize}
+
+\subsection{3}
+For all records where the punishment was any form of death, 8259 of the records were of male victims and 1857 were of female victims. This immediately shows that more men received a death penalty than women (women have about $\frac{1}{4}$th of the records men have with a death penalty). I would argue that this is likely due to the fact that men more often take extreme decisions/risks than women, more often committing more severe crimes with more severe punishments, and thus more often being charged for a severe crime and more often sentenced to death. 
+
+Among the subcategories of the death penalty offered by the Old Bailey, I could not find notable differences in amounts of verdicts where the distribution of verdicts for men vs. women does not reflect the balance of amount of death sentences in general given to men vs. women. In other words: men were more often punished with a certain type of death sentence than women since they were more often sentenced to death in general, with the number of men being sentenced to a subtype of the death penalty often being around 3 to 4 times that of women. From these findings, I would then conclude that the death penalty does not seem to be given much differently between men and women.
+
+\subsection{4}
+I chose to analyze the crime of embezzlement. Among women found guilty of embezzlement, the victims were often acquitted or found not guilty, and of those who were, punishments were most often imprisonment, ranging from 10 days to 1 year, but most often a few months. For men found guilty of embezzlement, of which the number of records is much larger, victims were also often found not guilty, and of those who were, punishment was most often imprisonment lasting from a week to a year, although there seem to be more cases of imprisonment durations at the higher end of that range for men than women (many embezzlement imprisonments last 9 months or 1 year). A punishment given out later to men is five years of penal servitude, meaning that the victims had to perform forced labor during imprisonment.
+
+I would say that on the basis of these findings, I would conclude that the range of punishments for the crime of embezzlement is very similar between men and women. However, it does seem that men more often received a longer imprisonment time than women, although this may be explained by men more often committing more severe cases of embezzlement.
+
+\subsection{5}
+I want to find out during which period the punishment of death by burning was given, or rephrased into a research question: ``During which time period is the punishment of death by burning attested in the records?''. I used the Statistical search and searched for all records where the punishment was labeled as ``Death > Burning''. This resulted in 36 records ranging from 1674 to 1790, giving us the period we wanted. It is notable that the punishment was given out very infrequently, with often plenty of years passing between cases.
+
+\subsection{6}
+\begin{itemize}
+    \item \begin{enumerate}
+        \item The documents must first be digitalized before they can be searched. Most preferably, this is done by hand by experts, but assuming that is not an option and that it must be done using just digital technology, we could take images of the pages of the records and have their textual contents parsed by an Optical Character Recognition system.
+        \item Once we have the raw digital text, we can perform a form of preprocessing to format it into a more readable format while maintaining the text's meaning (much easier said than done!)
+        \item We can then perform tokenization on the text to standardize it further, making it more reliably browseable.
+        \item We perform Part-of-Speech tagging on the text so that we know the morphological role of the text's tokens.
+        \item We parse the text so that we can perform a syntactic analysis on it, giving us the role of every token in the text from a syntactic point of view.
+        \item We can then extract verb phrases using the syntactic analysis to find phrases that are likely to describe any act of work.
+        \item We store these texts and their verb phrase markings in an information retrieval system.
+        \item We implement an interface where the information retrieval system can be queried for results.
+    \end{enumerate}
+    \item For this pipeline to work, we must annotate the digitalized texts with Parts-of-Speech and syntactic information. These are used to extract the verb phrases that indicate information about work.
+    \item Since we want to be able to search by gender, societal role, and historical period, we should annotate texts and their verb phrases with these three pieces of metadata. This is very preferably work that should be done by experts, or at least by humans, as it could be very difficult for automated systems to collect this metadata from the text.
+\end{itemize}
+
+\section{Subtask 2: Spelling Normalization}
+
+
+\bibliography{refs}
+
+\end{document}
