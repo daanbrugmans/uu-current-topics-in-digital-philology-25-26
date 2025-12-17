@@ -104,7 +104,7 @@ I used NLTK's current default PoS Tagger for this question, the ``averaged\_perc
         \item ``-eth'' is replaced by ``-e'' at the end of a word. ``-eth'' was often used as a verb conjugation, but has fallen out of use. The modern ``-e'' is used instead after the rule is applied. Worth noting is that I think this is the rule that is most likely to match false positives.
         \item ``-ie'' is replaced by ``-y'' at the end of a word. This is seemingly a historical spelling in words such as ``Normandie'', which is nowadays spelled ``Normandy'', alongside varying other words.
     \end{enumerate}
-    \item
+    \item To my understanding, none of the rules are dependant upon one another, neither intentionally nor unintentionally. The result of running any of the rules before another one should not change the resulting text, as none of the patterns for the rule inputs match any of the patterns for the rule outputs.
 \end{enumerate}
 
 \bibliography{refs}
