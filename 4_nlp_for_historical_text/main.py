@@ -76,6 +76,44 @@ def get_normalization_accuracy(
     return round(matching_token_count / total_token_count * 100, 1)
 
 
+def get_pos_tag_similarity(
+    historical_text: list[str], normalized_text: list[str]
+) -> float:
+    if len(historical_text) != len(normalized_text):
+        raise ValueError(
+            "Number of sentences in the historical text and the normalized text should be the same!"
+        )
+
+    tagged_historical_text = []
+    for sentence in historical_text:
+        tagged_historical_text.append(
+            nltk.tag.pos_tag(nltk.tokenize.word_tokenize(sentence))
+        )
+
+    tagged_normalized_text = []
+    for sentence in normalized_text:
+        tagged_normalized_text.append(
+            nltk.tag.pos_tag(nltk.tokenize.word_tokenize(sentence))
+        )
+
+    total_token_count = 0
+    matching_tag_count = 0
+    for historical_sentence, normalized_sentence in zip(
+        tagged_historical_text, tagged_normalized_text
+    ):
+        for historical_tag, normalized_tag in zip(
+            historical_sentence, normalized_sentence
+        ):
+            if historical_tag[1] == normalized_tag[1]:
+                matching_tag_count += 1
+            else:
+                print(f"Before: {historical_tag}; After: {normalized_tag}")
+
+            total_token_count += 1
+
+    return round(matching_tag_count / total_token_count * 100, 1)
+
+
 if __name__ == "__main__":
     path_to_assignment_4 = Path(__file__).parents[0]
     path_to_hs_file = Path(path_to_assignment_4, "icamet-samples_hs.txt")
@@ -91,4 +129,4 @@ if __name__ == "__main__":
     with open(path_to_hs_rules_file, "r", encoding="utf-8") as hs_rules_file:
         hs_rules_file_contents = hs_rules_file.readlines()
 
-    print(get_normalization_accuracy(hs_rules_file_contents, en_file_contents))
+    print(get_pos_tag_similarity(hs_file_contents, hs_rules_file_contents))

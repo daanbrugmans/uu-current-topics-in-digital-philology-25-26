@@ -124,6 +124,17 @@ I used NLTK's current default PoS Tagger for this question, the ``averaged\_perc
     \end{enumerate}
 \end{enumerate}
 
+\subsection{5}
+Using my own implementation of a metric that checks whether a token shares the same PoS tag before and after the normalization rules have been applied, I calculated that 99.0\% of the tags are the same before and after the rules have been applied. The following are some notable changes:
+\begin{itemize}
+    \item ``wyth'' marked as a base form verb (VB) changed to ``with'' marked as a preposition (IN). This is an example of my rule for changing ``y(consonant)'' to ``(i)consonant'' working as intended.
+    \item ``durying'' marked as a base form verb (VB) changed to ``during'' marked as a preposition (IN). This is another example of my rule for changing ``y(consonant)'' to ``(i)consonant'' working as intended.
+    \item ``myself'' marked as a personal pronoun changing to ``miself'' marked as a singular or mass noun (NN). This is an example of my rule for changing ``y(consonant)'' to ``(i)consonant'' NOT working as intended, and introducing new mistakes.
+    \item ``anie'' marked as a singular or mass noun changing to ``any'' marked as a determiner (DT). This is an example of my ``-ie'' to ``-y'' rule working as intended.
+    \item ``teeth'' marked as a plural noun (NNS) changing into ``tee'' marked as a singular or mass noun. This is an example of my ``-eth'' to ``-e'' rule introducing a significant error, as it not only falsely changes the Part-of-Speech, but also the semantics of the word.
+\end{itemize}
+Overall, I would say that my rules introduced more improvements than mistake, which is reflected in the computed accuracies. Although I have omitted most instances of the rule having an effect in this report, it seems that especially the rule that changes ``y(consonant)'' into ``i(consonant)'' had a positive effect on the PoS-tagging.
+
 \bibliography{refs}
 
 \newpage
