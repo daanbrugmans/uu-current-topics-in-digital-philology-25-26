@@ -3,6 +3,8 @@
 
 1_parsing_image_data/*.pyx
 1_parsing_image_data/levenshtein.py
+5_machine_translation_for_historical_data/data/swedish/*.hs
+5_machine_translation_for_historical_data/data/swedish/*.sv
 
 ### JupyterNotebooks ###
 # gitignore template for Jupyter Notebooks
