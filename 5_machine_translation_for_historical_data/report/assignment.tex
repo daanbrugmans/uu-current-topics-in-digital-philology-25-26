@@ -1,3 +1,72 @@
+\documentclass{article}
+% if you need to pass options to natbib, use, e.g.:
+    \PassOptionsToPackage{numbers}{natbib}
+% before loading neurips_2023
+
+\usepackage[preprint]{neurips_2023}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+
+\title{Current Topics in Digital Philology --- \\Assignment 5: Machine Translation for Historical Text}
+
+\author{%
+  Daan Brugmans \\
+  Radboud University\\
+  \texttt{\url{daan.brugmans@ru.nl}} \\
+}
+
+
+\begin{document}
+
+\bibliographystyle{plainnat}
+
+\maketitle
+
+\section{Task 1}
+[See the task\_1.py file]
+
+\section{Task 2}
+[Nothing to report]
+
+\section{Task 3}
+For task 3, I ran the historical Swedish test text through the trained SMT model and compared BLEU and exact match scores for the unaltered historical texts (``do nothing'') and the texts that were translated to modern Swedish by the NMT model, taking the modern Swedish test texts as the ground truth.
+The baseline BLEU score for the ``do nothing'' setup was 73.3, while the BLEU score for the translated text was 85.0, which means that the SMT model improved the BLEU score over the baseline.
+This can also be seen in the exact match metric: whereas the ``do nothing'' setup resulted in an exact match accuracy of 54.2\%, the SMT-translated texts achieved an exact match accuracy of 76.4\%, improving the accuracy by about 20 percent-points.
+The SMT-based translations thus show a clear improvement over the ``do nothing'' baseline.
+
+\section{Task 4}
+For my small experiment, I wanted to try to apply an already pretrained and finetuned mBART-50 model to the dataset. My main motivation for this is that I wanted to use an existing large neural machine translation model that already supported Swedish use its existing knowledge of Swedish to achieve high-performing results. I also had experience with using mBART-50 before, so I knew it would be feasible to achieve this. 
+
+I used an mBART-50 model through the HuggingFace platform, specifically \texttt{facebook/mbart\_large\_50}, and trained it on the exact same dataset and data splits as the SMT model. However, since this model is finetuned using entire sentences as training data instead of individual characters, I perform additional preprocessing that concatenates the word-split Swedish dataset provided for the assignment back into full sentences, including punctuation. Furthermore, since continuing the finetuning of the mBART-50 model in a regular way would take up a lot of time and energy, I instead finetune the model using LoRA, a Parameter-Efficient Finetuning (PEFT) method that significantly reduces the amount of resources used. Using HuggingFace's LoRA support, I was able to finetune the mBART-50 model for 5 epochs within 5 minutes on an NVIDIA A6000 GPU.
+
+However, my expectations did not meet my results, as the finetuned model achieved a very low BLEU score of 0.03, and an exact match accuracy of 0\%. I expect that something must have gone wrong during the training process. Although I tried to resolve the low scores by changing the training setup, this did not change the results. I propose a few possible explanations to what is happening: 
+\begin{itemize}
+    \item The model has a difficult time handling Swedish data as an input and an output at the same time.
+    \item The limited size of the dataset prevented the model from training properly.
+    \item The training parameters are somehow unfit for the training setup.
+\end{itemize}
+
+The bad training has resulted in translations such as ``'Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik Erik'', ``Om Om Om Om Om Om Om Om Om Om Om Om Om Om Om Om Om Om'', ``Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men Men'', ``Till Till'', etc. This is what most translations look like, and that explains the very low metric scores.
+
+\bibliography{refs}
+
+\newpage
+\appendix
+\section{Task 4 Code}
+\textbf{NOTE:} this code is also handed in as a .py file that may be easier to read.
+
+\begin{lstlisting}
 from __future__ import annotations
 
 import random
@@ -166,21 +235,6 @@ class NMTModel(ABC):
         return bleu_results["bleu"], bleu_results, (sources, targets, predictions)
 
 
-def remove_removable_chars(corpus: list[str]) -> list[str]:
-    preprocessed_corpus: list[str] = []
-    removable_chars = '….,?!:;‘“”()[]{}+=-*_–\|/<>#€%^&*@1234567890"\n│•·†„‘·`‚¬½'
-
-    for text in corpus:
-        text = "".join([char for char in text if char not in removable_chars])
-        text = text.replace("’", "'")
-        text = text.replace("''", "'")
-        text = text.strip()
-
-        preprocessed_corpus.append(text)
-
-    return preprocessed_corpus
-
-
 def create_custom_dataset():
     for split in ["train", "test", "dev"]:
         dataset_dict = {}
@@ -314,3 +368,6 @@ if __name__ == "__main__":
     bleu_score, bleu_details, bleu_data = custom_nmt_model.get_bleu(
         train_data, "sv_SE", "sv_SE"
     )
+\end{lstlisting}
+
+\end{document}
