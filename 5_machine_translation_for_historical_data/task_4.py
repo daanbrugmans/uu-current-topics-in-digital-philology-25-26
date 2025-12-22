@@ -1,10 +1,10 @@
 from __future__ import annotations
-# import os
+import os
 
-# os.environ["HF_HOME"] = (
-#     "/vol/tensusers/dbrugmans/projects/ru-master-thesis-24-25/models"
-# )
-# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["HF_HOME"] = (
+    "/vol/tensusers/dbrugmans/projects/ru-master-thesis-24-25/models"
+)
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 import random
 from abc import ABC
@@ -85,7 +85,7 @@ class NMTModel(ABC):
         if use_custom:
             self.mbart = peft.PeftModel.from_pretrained(
                 base_model,
-                "/vol/tensusers/dbrugmans/projects/uu-machine-translation-project/models/finetuned_creole_mbart_20",
+                "/vol/tensusers/dbrugmans/projects/uu-machine-translation-project/models/finetuned_swedish_mbart",
             )
         else:
             self.mbart = base_model
@@ -302,7 +302,7 @@ def train(
     lora_mbart.train()
     trainer.train()
     lora_mbart.save_pretrained(
-        "/vol/tensusers/dbrugmans/projects/uu-machine-translation-project/models/finetuned_creole_mbart_20/"
+        "/vol/tensusers/dbrugmans/projects/uu-machine-translation-project/models/finetuned_swedish_mbart/"
     )
 
 
