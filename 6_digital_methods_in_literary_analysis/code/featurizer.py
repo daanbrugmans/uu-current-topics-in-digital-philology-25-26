@@ -30,11 +30,7 @@ class Featurizer:
             "f_i_quotation_count",
             "f_i_question_count",
             "f_i_exclamation_count",
-            "f_o_sentiment_score_neg",
-            "f_o_sentiment_score_neu",
-            "f_o_sentiment_score_pos",
             "f_o_he_she_ratio",
-            "f_o_swear_word_count",
             "f_d_character_count",
             "f_d_word_count",
             "f_d_sentence_count",
@@ -49,7 +45,7 @@ class Featurizer:
             "f_c_mean_word_length",
             "f_c_mean_sentence_length",
             "f_c_word_length_standard_deviation",
-            "f_c_sentence_length_standard_deviation",
+            # "f_c_sentence_length_standard_deviation",
             "f_c_mean_word_frequency",
             "f_c_lexical_diversity_coefficient",
             "f_c_syntactic_complexity_coefficient",
@@ -114,131 +110,132 @@ class Featurizer:
         #     "f_p_pos_parenthesis_ratio": ["(", ")"],
         # }
 
-        self.sentiment_modelname = "cardiffnlp/twitter-roberta-base-sentiment"
-        self.sentiment_tokenizer = AutoTokenizer.from_pretrained(
-            self.sentiment_modelname, cache_dir="./model_cache", model_max_length=512
-        )
-        self.sentiment_model = AutoModelForSequenceClassification.from_pretrained(
-            self.sentiment_modelname, cache_dir="./model_cache"
-        )
-        self.sentiment_model.save_pretrained(save_directory="./model_cache")
+        # self.sentiment_modelname = "cardiffnlp/twitter-roberta-base-sentiment"
+        # self.sentiment_tokenizer = AutoTokenizer.from_pretrained(
+        #     self.sentiment_modelname, cache_dir="./model_cache", model_max_length=512
+        # )
+        # self.sentiment_model = AutoModelForSequenceClassification.from_pretrained(
+        #     self.sentiment_modelname, cache_dir="./model_cache"
+        # )
+        # self.sentiment_model.save_pretrained(save_directory="./model_cache")
 
-        profanity.load_censor_words()
+        # profanity.load_censor_words()
 
     def featurize(self, dataset: list) -> pd.DataFrame:
         """Featurize the texts in the dataset"""
         features_dict: dict[str, list[int | float]] = {
             i: [] for i in list(self.features)
         }
-        features_dict["index"] = []
+        features_dict["author"] = []
 
-        for key in self.pos_tags:
-            features_dict[key] = []
+        # for key in self.pos_tags:
+        #     features_dict[key] = []
 
         for document in tqdm(dataset):
-            gutenberg_sentences = list(nltk.corpus.gutenberg.sents(document))
+            gutenberg_sentences = list(nltk.corpus.gutenberg.sents(document))[0:3000]
             sentences = [
                 " ".join(sentence).replace("[ ", "").replace(" ]", "")
                 for sentence in gutenberg_sentences
             ]
 
-            tokens = list(nltk.corpus.gutenberg.words(document))
+            for sentence in sentences:
+                tokens = nltk.word_tokenize(sentence)
 
-            author: str = document.split("-")[0]
-            features_dict["author"] = author
+                author: str = document.split("-")[0]
+                features_dict["author"].append(author)
 
-            # features_dict["index"].append(index)
-            features_dict["f_g_all_caps_wordcount"].append(
-                self.get_all_caps_wordcount(tokens)
-            )
-            features_dict["f_g_sentence_wo_cap_at_start"].append(
-                self.get_sentence_wo_cap_at_start(sentences)
-            )
-            features_dict["f_g_sentence_lower_at_start"].append(
-                self.get_sentence_lower_at_start(sentences)
-            )
-            features_dict["f_g_a_an_error_count"].append(
-                self.get_a_an_error_count(document)
-            )
-            features_dict["f_g_cont_punct_count"].append(
-                self.get_cont_punct_count(tokens)
-            )
-            features_dict["f_i_quotation_count"].append(
-                self.get_quotation_count(document)
-            )
-            features_dict["f_i_question_count"].append(
-                self.get_question_count(sentences)
-            )
-            features_dict["f_i_exclamation_count"].append(
-                self.get_exclamation_count(sentences)
-            )
-            # neg, neu, pos = self.get_sentiment_score(document)
-            # features_dict["f_o_sentiment_score_neg"].append(neg)
-            # features_dict["f_o_sentiment_score_neu"].append(neu)
-            # features_dict["f_o_sentiment_score_pos"].append(pos)
-            features_dict["f_o_he_she_ratio"].append(self.get_he_she_ratio(tokens))
-            # features_dict["f_o_swear_word_count"].append(
-            #     self.get_swear_word_count(document)
-            # )
-            features_dict["f_d_character_count"].append(
-                self.get_character_count(document)
-            )
-            features_dict["f_d_word_count"].append(self.get_word_count(tokens))
-            features_dict["f_d_sentence_count"].append(
-                self.get_sentence_count(sentences)
-            )
-            features_dict["f_d_punctuation_count"].append(
-                self.get_punctuation_count(document)
-            )
-            features_dict["f_d_digit_count"].append(self.get_digit_count(document))
-            features_dict["f_d_uppercase_count"].append(
-                self.get_uppercase_count(document)
-            )
-            features_dict["f_d_short_word_count"].append(
-                self.get_short_word_count(tokens)
-            )
-            features_dict["f_d_alphabet_count"].append(
-                self.get_alphabet_count(document)
-            )
-            features_dict["f_d_contraction_count"].append(
-                self.get_contraction_count(document)
-            )
-            features_dict["f_d_word_without_vowels_count"].append(
-                self.get_word_without_vowels_count(tokens)
-            )
-            features_dict["f_d_hapax_legomenon_count"].append(
-                self.get_hapax_legomenon_count(tokens)
-            )
-            features_dict["f_c_mean_word_length"].append(
-                self.get_mean_word_length(tokens)
-            )
-            features_dict["f_c_mean_sentence_length"].append(
-                self.get_mean_sentence_length(tokens)
-            )
-            features_dict["f_c_word_length_standard_deviation"].append(
-                self.get_word_length_standard_deviation(tokens)
-            )
-            features_dict["f_c_sentence_length_standard_deviation"].append(
-                self.get_sentence_length_standard_deviation(tokens)
-            )
-            features_dict["f_c_mean_word_frequency"].append(
-                self.get_mean_word_frequency(tokens)
-            )
-            features_dict["f_c_lexical_diversity_coefficient"].append(
-                self.get_lexical_diversity_coefficient(tokens)
-            )
-            features_dict["f_c_syntactic_complexity_coefficient"].append(
-                self.get_syntactic_complexity_coefficient(tokens)
-            )
-            features_dict["f_c_herdans_log_type_token_richness"].append(
-                self.get_herdans_log_type_token_richness(tokens)
-            )
+                # features_dict["index"].append(index)
+                features_dict["f_g_all_caps_wordcount"].append(
+                    self.get_all_caps_wordcount(tokens)
+                )
+                features_dict["f_g_sentence_wo_cap_at_start"].append(
+                    self.get_sentence_wo_cap_at_start(sentence)
+                )
+                features_dict["f_g_sentence_lower_at_start"].append(
+                    self.get_sentence_lower_at_start(sentence)
+                )
+                features_dict["f_g_a_an_error_count"].append(
+                    self.get_a_an_error_count(sentence)
+                )
+                features_dict["f_g_cont_punct_count"].append(
+                    self.get_cont_punct_count(tokens)
+                )
+                features_dict["f_i_quotation_count"].append(
+                    self.get_quotation_count(sentence)
+                )
+                features_dict["f_i_question_count"].append(
+                    self.get_question_count(sentence)
+                )
+                features_dict["f_i_exclamation_count"].append(
+                    self.get_exclamation_count(sentence)
+                )
+                # neg, neu, pos = self.get_sentiment_score(document)
+                # features_dict["f_o_sentiment_score_neg"].append(neg)
+                # features_dict["f_o_sentiment_score_neu"].append(neu)
+                # features_dict["f_o_sentiment_score_pos"].append(pos)
+                features_dict["f_o_he_she_ratio"].append(self.get_he_she_ratio(tokens))
+                # features_dict["f_o_swear_word_count"].append(
+                #     self.get_swear_word_count(document)
+                # )
+                features_dict["f_d_character_count"].append(
+                    self.get_character_count(sentence)
+                )
+                features_dict["f_d_word_count"].append(self.get_word_count(tokens))
+                features_dict["f_d_sentence_count"].append(
+                    self.get_sentence_count(sentence)
+                )
+                features_dict["f_d_punctuation_count"].append(
+                    self.get_punctuation_count(sentence)
+                )
+                features_dict["f_d_digit_count"].append(self.get_digit_count(sentence))
+                features_dict["f_d_uppercase_count"].append(
+                    self.get_uppercase_count(sentence)
+                )
+                features_dict["f_d_short_word_count"].append(
+                    self.get_short_word_count(tokens)
+                )
+                features_dict["f_d_alphabet_count"].append(
+                    self.get_alphabet_count(sentence)
+                )
+                features_dict["f_d_contraction_count"].append(
+                    self.get_contraction_count(sentence)
+                )
+                features_dict["f_d_word_without_vowels_count"].append(
+                    self.get_word_without_vowels_count(tokens)
+                )
+                features_dict["f_d_hapax_legomenon_count"].append(
+                    self.get_hapax_legomenon_count(tokens)
+                )
+                features_dict["f_c_mean_word_length"].append(
+                    self.get_mean_word_length(tokens)
+                )
+                features_dict["f_c_mean_sentence_length"].append(
+                    self.get_mean_sentence_length(tokens)
+                )
+                features_dict["f_c_word_length_standard_deviation"].append(
+                    self.get_word_length_standard_deviation(tokens)
+                )
+                # features_dict["f_c_sentence_length_standard_deviation"].append(
+                #     self.get_sentence_length_standard_deviation(tokens)
+                # )
+                features_dict["f_c_mean_word_frequency"].append(
+                    self.get_mean_word_frequency(tokens)
+                )
+                features_dict["f_c_lexical_diversity_coefficient"].append(
+                    self.get_lexical_diversity_coefficient(tokens)
+                )
+                features_dict["f_c_syntactic_complexity_coefficient"].append(
+                    self.get_syntactic_complexity_coefficient(tokens)
+                )
+                features_dict["f_c_herdans_log_type_token_richness"].append(
+                    self.get_herdans_log_type_token_richness(tokens)
+                )
 
-            # for key, value in self.get_pos_tag_ratios(tokens, self.pos_tags).items():
-            #     features_dict[key].append(value)
+                # for key, value in self.get_pos_tag_ratios(tokens, self.pos_tags).items():
+                #     features_dict[key].append(value)
 
         features_df = pd.DataFrame.from_dict(features_dict)
-        features_df = features_df.set_index("index")
+        # features_df = features_df.set_index("index")
 
         return features_df
 
@@ -543,12 +540,15 @@ class Featurizer:
     def get_word_length_standard_deviation(self, tokens: list[str]) -> int:
         word_lengths = [len(word) for word in tokens]
 
-        return round(statistics.stdev(word_lengths), 3)
+        if len(tokens) > 1:
+            return round(statistics.stdev(word_lengths), 3)
+        else:
+            return 0
 
-    def get_sentence_length_standard_deviation(self, tokens: list[str]) -> int:
-        sentence_lengths = [len(sentence) for sentence in tokens]
+    # def get_sentence_length_standard_deviation(self, tokens: list[str]) -> int:
+    #     sentence_lengths = [len(sentence) for sentence in tokens]
 
-        return round(statistics.stdev(sentence_lengths), 3)
+    #     return round(statistics.stdev(sentence_lengths), 3)
 
     def get_mean_word_frequency(self, tokens: list[str]) -> int:
         word_frequencies = {}
@@ -583,6 +583,15 @@ class Featurizer:
         """From https://pubs.asha.org/doi/abs/10.1044/jshr.3203.536"""
         total_word_count = self.get_word_count(tokens)
         unique_word_count = self.get_hapax_legomenon_count(tokens)
+
+        if math.log(total_word_count) == 0:
+            return 0
+
+        if total_word_count == 0:
+            return 0
+
+        if unique_word_count == 0:
+            return 0
 
         herdans_log_type_token_richness = math.log(unique_word_count) / math.log(
             total_word_count

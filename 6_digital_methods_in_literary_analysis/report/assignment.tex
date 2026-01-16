@@ -26,7 +26,6 @@
   \texttt{\url{daan.brugmans@ru.nl}} \\
 }
 
-
 \begin{document}
 
 \bibliographystyle{plainnat}
@@ -35,9 +34,131 @@
 
 \section{Introduction}
 In this small-scale study, I explore the use of digital methods for a stylometric comparison between the written works of multiple authors.
-Specifically, I analyze the style of a handful of authors featured in NLTK's subset of the Gutenberg Corpus by training an SVC machine learning model on .
+Specifically, I analyze how different aspects of authors' writing styles featured in NLTK's subset of the Gutenberg Corpus influence the decision making of a machine learning model.
+This model is trained to classify an input text to an author using a set of features that are based on the writing style used in the text to be classified.
+This way, the model learns to classify a text to its author using the style of the text's author.
+The task of classifying a text to an author is called authorship attribution
+Once the model is trained, an ablation study is performed to gain an insight into which features the model finds the most useful.
+Since these features are based on stylistic characteristics of the texts, such an ablation study shows which aspects of an author's writing style contain the most extractable information when trying to attribute a text to an author, or in other words, which parts of an author's writing style are most useful to look at.
 
 \section{Related Work}
+There already exists a significant body of work on the topic of authorship attribution and the use of digital methods for this task.
+Stamatatos \cite{stamatatos2009surveymodern,stamatatos2016authorshipverification} provides an overview of such methods.
 
+For the purpose of this research, there are a few metrics proposed in different works that are used as features for the machine learning model.
+The \textit{Lexical Diversity Coefficient} is a metric proposed by Hlavcheva et al. \cite{hlavcheva2021languageindependentfeatures} that aims to describe the lexical diversity of a text by computing the amount of unique words over the total amount of words.
+This gives a relative value that describes the share of words that occur only once in a text.
+Hess at al. \cite{hess1989reliabilitytypetoken} describe a similar metric called \textit{Herdan's Log Type Token Richness}, which is computed by taking the log of the amount of unique words in a text over the log of the total amount of words in a text.
+
+Additionally, Hlavcheva et al. also describe their \textit{Syntactic Complexity Coefficient} metric.
+This metric is computed by taking the total amount of sentences in a text over the total amount of words in a text, and subtracting that value from 1.
+This gives a metric that ranges from 0 to 1, where a higher number means that the overall syntactic complexity of the text is higher; for example, if the total amount of words used in a text remains the same, but the number of sentences used goes down, then the sentences in the text have become longer, which makes the text more syntactically complex.
+
+\section{Methods}
+I used NLTK's subset of the Gutenberg corpus as a dataset.
+It contains eighteen different historical literary works from a variety of authors.
+Out of these works, three authors all have three of their works included:
+\begin{itemize}
+  \item \textbf{William Shakespeare}: \textit{The Tragedy of Julius Caesar}, \textit{Hamlet}, and \textit{Macbeth}.
+  \item \textbf{Jane Austen}: \textit{Emma}, \textit{Persuasion}, and \textit{Sense and Sensibility}.
+  \item \textbf{Gilbert Keith Chesterton}: \textit{The Ball and the Cross}, a collection of stories about \textit{Father Brown}, and \textit{The Man Who Was Thursday}.
+\end{itemize}
+I have used these nine works as part of my research, foregoing the use of the other works.
+This decision was motivated by how this distribution of data would align with the problem at hand: with a dataset of three separate textual works for every author, for three different authors total, a dataset can be constructed where splits for a train, validation, and test set all contain one literary work per author.
+This means I have used the following data splits for training the model:
+\begin{itemize}
+  \item \textbf{Train}: \textit{The Tragedy of Julius Caesar}, \textit{Emma}, and \textit{The Ball and the Cross}.
+  \item \textbf{Validation}: \textit{Hamlet}, \textit{Persuasion}, and  \textit{Father Brown}.
+  \item \textbf{Test}: \textit{Sense and Sensibility}, \textit{Macbeth}, and \textit{The Man Who Was Thursday}.
+\end{itemize}
+
+The model trained is an SVC model and the features it was trained on were extracted from the dataset.
+These features all aim to describe characteristics of the texts themselves or the writing style used by the text's author.
+The following is the list of features used by the model:
+\begin{itemize}
+  \item \textbf{All Caps Word Count}: the amount of words that are written using only capitalized letters.
+  \item \textbf{Sentence without Capital at Start}: the amount of sentences in a text that do not start with a capital letter.
+  \item \textbf{Sentence Lower at Start}: the amount of sentences in a text that start with a non-capitalized letter. This feature is separate from the prior one, as combination excludes counting sentences that start with something that isn't a letter.
+  \item \textbf{A/An Error Count}: the amount of times that the use of ``a'' and ``an'' was not used properly in a sentence.
+  \item \textbf{Continuous Punctuation Count}: the amount of times a sentence ends with trailing periods (\dots).
+  \item \textbf{Quotation Count}: the amount of times a sentence ends in a question mark.
+  \item \textbf{Exclamation Count}: the amount of times a sentence ends in an exclamation mark.
+  \item \textbf{He/She Ratio}: the ratio of the amount of times ``he'' is used in a text over the amount of times ``she'' is used in a text.
+  \item \textbf{Character Count}: the amount of characters in a text.
+  \item \textbf{Word Count}: the amount of words in a text.
+  \item \textbf{Sentence Count}: the amount of sentences in a text.
+  \item \textbf{Punctuation Count}: the amount of punctuation occurrences in the text.
+  \item \textbf{Digit Count}: the amount of times a digit is written in the text. Numbers consisting of multiple digits have all their digits counted.
+  \item \textbf{Uppercase Count}: the amount of times uppercase characters are used in the text.
+  \item \textbf{Short Word Count}: the amount of times a ``short'' word was used in the text. Here, a short word is defined as a word that consists of 4 characters or less.
+  \item \textbf{Alphabet Count}: the amount of unique characters that are used in the text.
+  \item \textbf{Contraction Count}: the amount of times contractions such as ``don't' are used in the text.
+  \item \textbf{Word Without Vowels Count}: the amount of times words without vowels are used in the text. Here, the letter ``y'' is not considered a vowel.
+  \item \textbf{Hapax Legomenon Count}: the amount of times a word is used in the text that isn't used anywhere else in the text.
+  \item \textbf{Mean Word Length}: the mean length of words in a text.
+  \item \textbf{Mean Sentence Length}: the mean length of sentences in a text.
+  \item \textbf{Word Length Standard Deviation}: the standard deviation of the amount of words used in a text.
+  \item \textbf{Mean Word Frequency}: the mean amount of times a word is used in a text.
+  \item The \textbf{Lexical Diversity Coefficient} \cite{hlavcheva2021languageindependentfeatures}.
+  \item The \textbf{Syntactic Complexity Coefficient} \cite{hlavcheva2021languageindependentfeatures}.
+  \item The \textbf{Herdan's Log Type Token Richness} \cite{hess1989reliabilitytypetoken}.
+\end{itemize}
+To limit the computational resources required to fit the scale of this project, only the first 3000 sentences of every literary work are used when extracting the features and building the dataset.
+
+\section{Results}
+After the model is trained, an ablation study is performed.
+This study retrains the model on the same data, while using all of the features mentioned in the above list except one.
+The resulting model is evaluated on the test dataset and it's F1-score is recorded, a balance between the model's precision and recall.
+This is done for every feature in the dataset, until there are F1-scores for every feature ablated.
+These scores are compared to each other, with a focus on how much the F1-score dropped when a specific feature is ablated compared to other ablated features.
+The more the F1-score drops when a specific feature is ablated, the more important information it contains that was used by the model to come to a correct prediction.
+This means that ablated features with relatively low F1-scores contain more valuable information than those with higher F1-scores.
+Figure \ref{fig:ablation} shows the results of the ablation study on the dataset as described in the Methods section.
+
+Furthermore, the model trained on all features was also evaluated on the test set.
+The overall classification accuracy of the model was recorded at 73.0\%, as well as the overall F1-score of 72.98\%.
+The precision, recall, and F1-score per author was also recorded.
+Figure \ref{tab:results} shows these per-author results.
+
+\begin{table}
+  \centering
+  \begin{tabular}{l|lll}
+                      & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\ \hline
+  \textbf{Austen}      & 69\%               & 65\%            & 67\%              \\
+  \textbf{Chesterton}  & 68\%               & 71\%            & 70\%              \\
+  \textbf{Shakespeare} & 86\%               & 87\%            & 86\%             
+  \end{tabular}
+  \caption{Per-author precision, recall, and F1-scores for the model trained on all features.}
+  \label{tab:results}
+\end{table}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{images/ablation_plot_test.png}
+    \caption{Results of the ablation study.}
+    \label{fig:ablation}
+\end{figure}
+
+\section{Discussion}
+The results show an overall decent performance of the model on the trinary classification task.
+The average accuracy achieved by the model is 73\%, which is well above randomly guessing, and the model seems to be able to recognize which author has written which text based on only stylistic features of the text.
+The model performs best at classifying works from Shakespeare, achieving an F1-score of 86\%, with works by Austen and Chesterton achieving lower F1-scores.
+
+The ablation study shows that most features are about as important to the model, as there is little difference between most of the ablated features.
+Two features do show a noticeable drop in performance when removed from the set of features: the he/she ratio and the uppercase count.
+This means that out of the features used, the model gets the most information about the author's style in a single feature when that feature describes the amount of uppercase letters used in a text, or how the ratio of the usage of ``he'' over ``her'' is compared to the data it was trained on.
+
+Within the field of digital humanities, this work serves as a small-scale example of how modern digital methods can be used to solve problems to levels of efficiency and efficacy that could not be achieved without modern digital methods.
+The dataset used here contained only texts for which the author was already known.
+However, the approach used in this report can be extended to texts whose author is unknown: by collecting a dataset of texts written by potential candidates of a text whose author is unknown, the form of authorship attribution used in this report can give quantitative predictions on the likelihood of any of the candidate authors being the unknown author.
+
+\section{Conclusion}
+In this report, I showed how machine learning methods can be used to analyze the writing style of different authors, specifically in how differences in writing styles can be learned by machine learning models to perform authorship attribution to texts with unknown authors.
+I trained an SVC model on a dataset of literary works from William Shakespeare, Jane Adams, and Gilbert Keith Chesterton as an example of digital methods for authorship attribution.
+This model achieved an overall accuracy of 73.0\%.
+I also performed an ablation study to discover which of the stylistic features used by the model to make its predictions contains the most valuable information.
+The results from this study show that the amount of uppercase words used and the ratio of use of ``he'' over ``she'' are relied upon the most by the trained model.
+
+\bibliography{refs}
 
 \end{document}
