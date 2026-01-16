@@ -1,5 +1,6 @@
 .vscode
 *.sty
+**/model_cache
 
 1_parsing_image_data/*.pyx
 1_parsing_image_data/levenshtein.py
