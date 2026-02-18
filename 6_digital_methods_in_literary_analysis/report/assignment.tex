@@ -37,7 +37,7 @@ In this small-scale study, I explore the use of digital methods for a stylometri
 Specifically, I analyze how different aspects of authors' writing styles featured in NLTK's subset of the Gutenberg Corpus influence the decision making of a machine learning model.
 This model is trained to classify an input text to an author using a set of features that are based on the writing style used in the text to be classified.
 This way, the model learns to classify a text to its author using the style of the text's author.
-The task of classifying a text to an author is called authorship attribution
+The task of classifying a text to an author is called authorship attribution.
 Once the model is trained, an ablation study is performed to gain an insight into which features the model finds the most useful.
 Since these features are based on stylistic characteristics of the texts, such an ablation study shows which aspects of an author's writing style contain the most extractable information when trying to attribute a text to an author, or in other words, which parts of an author's writing style are most useful to look at.
 
@@ -48,7 +48,7 @@ Stamatatos \cite{stamatatos2009surveymodern,stamatatos2016authorshipverification
 For the purpose of this research, there are a few metrics proposed in different works that are used as features for the machine learning model.
 The \textit{Lexical Diversity Coefficient} is a metric proposed by Hlavcheva et al. \cite{hlavcheva2021languageindependentfeatures} that aims to describe the lexical diversity of a text by computing the amount of unique words over the total amount of words.
 This gives a relative value that describes the share of words that occur only once in a text.
-Hess at al. \cite{hess1989reliabilitytypetoken} describe a similar metric called \textit{Herdan's Log Type Token Richness}, which is computed by taking the log of the amount of unique words in a text over the log of the total amount of words in a text.
+Hess et al. \cite{hess1989reliabilitytypetoken} describe a similar metric called \textit{Herdan's Log Type Token Richness}, which is computed by taking the log of the amount of unique words in a text over the log of the total amount of words in a text.
 
 Additionally, Hlavcheva et al. also describe their \textit{Syntactic Complexity Coefficient} metric.
 This metric is computed by taking the total amount of sentences in a text over the total amount of words in a text, and subtracting that value from 1.

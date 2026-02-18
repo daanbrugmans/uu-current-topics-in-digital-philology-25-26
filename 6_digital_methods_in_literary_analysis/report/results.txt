@@ -1,0 +1,18 @@
+author
+austen         2301
+chesterton     1718
+shakespeare    1055
+Name: count, dtype: int64
+Running classifier...
+Evaluating classifier...
+Accuracy: 0.8470201783200375
+F1 score: 0.8475642114538162
+Classification report:               precision    recall  f1-score   support
+
+      austen       0.87      0.80      0.83      1000
+  chesterton       0.76      0.83      0.80       749
+ shakespeare       0.98      0.99      0.99       382
+
+    accuracy                           0.85      2131
+   macro avg       0.87      0.88      0.87      2131
+weighted avg       0.85      0.85      0.85      2131

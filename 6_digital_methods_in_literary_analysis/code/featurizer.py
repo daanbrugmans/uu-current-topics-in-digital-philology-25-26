@@ -3,15 +3,14 @@ import string
 import statistics
 import math
 
+from better_profanity import profanity
 import pandas as pd
 import nltk
 import contractions
 
-from tqdm import tqdm
-from transformers import AutoModelForSequenceClassification
-from transformers import AutoTokenizer
 from scipy.special import softmax
-from better_profanity import profanity
+from tqdm import tqdm
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 
 nltk.download("punkt")
@@ -45,11 +44,15 @@ class Featurizer:
             "f_c_mean_word_length",
             "f_c_mean_sentence_length",
             "f_c_word_length_standard_deviation",
-            # "f_c_sentence_length_standard_deviation",
+            "f_c_sentence_length_standard_deviation",
             "f_c_mean_word_frequency",
             "f_c_lexical_diversity_coefficient",
             "f_c_syntactic_complexity_coefficient",
             "f_c_herdans_log_type_token_richness",
+            "f_o_sentiment_score_neg",
+            "f_o_sentiment_score_neu",
+            "f_o_sentiment_score_pos",
+            "f_o_swear_word_count",
         ]
 
         # self.pos_tags = {
@@ -110,16 +113,16 @@ class Featurizer:
         #     "f_p_pos_parenthesis_ratio": ["(", ")"],
         # }
 
-        # self.sentiment_modelname = "cardiffnlp/twitter-roberta-base-sentiment"
-        # self.sentiment_tokenizer = AutoTokenizer.from_pretrained(
-        #     self.sentiment_modelname, cache_dir="./model_cache", model_max_length=512
-        # )
-        # self.sentiment_model = AutoModelForSequenceClassification.from_pretrained(
-        #     self.sentiment_modelname, cache_dir="./model_cache"
-        # )
-        # self.sentiment_model.save_pretrained(save_directory="./model_cache")
+        self.sentiment_modelname = "cardiffnlp/twitter-roberta-base-sentiment"
+        self.sentiment_tokenizer = AutoTokenizer.from_pretrained(
+            self.sentiment_modelname, model_max_length=512
+        )
+        self.sentiment_model = AutoModelForSequenceClassification.from_pretrained(
+            self.sentiment_modelname
+        ).to("cuda")
+        self.sentiment_model.save_pretrained(save_directory="./model_cache")
 
-        # profanity.load_censor_words()
+        profanity.load_censor_words()
 
     def featurize(self, dataset: list) -> pd.DataFrame:
         """Featurize the texts in the dataset"""
@@ -127,19 +130,44 @@ class Featurizer:
             i: [] for i in list(self.features)
         }
         features_dict["author"] = []
+        num_sentences_in_text = 5
+        num_sentences_per_document = 3000 * num_sentences_in_text
 
         # for key in self.pos_tags:
         #     features_dict[key] = []
 
         for document in tqdm(dataset):
-            gutenberg_sentences = list(nltk.corpus.gutenberg.sents(document))[0:3000]
+            gutenberg_sentences = list(nltk.corpus.gutenberg.sents(document))[
+                0:num_sentences_per_document
+            ]
             sentences = [
-                " ".join(sentence).replace("[ ", "").replace(" ]", "")
+                " ".join(sentence)
+                .replace("[ ", "")
+                .replace(" ]", "")
+                .replace(" , ", ", ")
+                .replace(" ' ", "'")
+                .replace(" .", ".")
+                .replace(" ; ", "; ")
+                .replace(" - ", "-")
                 for sentence in gutenberg_sentences
             ]
 
-            for sentence in sentences:
-                tokens = nltk.word_tokenize(sentence)
+            texts = []
+            texts_sentences = []
+            for i in range(0, len(sentences), num_sentences_in_text):
+                text_sentences_cluster = sentences[i : i + num_sentences_in_text]
+                texts_sentences.append(text_sentences_cluster)
+                texts.append(" ".join(text_sentences_cluster).strip())
+
+            # texts = [
+            #     " ".join(sentences[i : i + num_sentences_in_text]).strip()
+            #     for i in range(0, len(sentences), num_sentences_in_text)
+            # ]
+            # for i in range(0, lesn(sentences), num_sentences_in_text):
+            #     print(" ".join(sentences[i : i + num_sentences_in_text]).strip())
+
+            for text, text_sentences in zip(texts, texts_sentences):
+                tokens = nltk.word_tokenize(text)
 
                 author: str = document.split("-")[0]
                 features_dict["author"].append(author)
@@ -149,56 +177,59 @@ class Featurizer:
                     self.get_all_caps_wordcount(tokens)
                 )
                 features_dict["f_g_sentence_wo_cap_at_start"].append(
-                    self.get_sentence_wo_cap_at_start(sentence)
+                    self.get_sentence_wo_cap_at_start(text)
                 )
                 features_dict["f_g_sentence_lower_at_start"].append(
-                    self.get_sentence_lower_at_start(sentence)
+                    self.get_sentence_lower_at_start(text)
                 )
                 features_dict["f_g_a_an_error_count"].append(
-                    self.get_a_an_error_count(sentence)
+                    self.get_a_an_error_count(text)
                 )
                 features_dict["f_g_cont_punct_count"].append(
                     self.get_cont_punct_count(tokens)
                 )
                 features_dict["f_i_quotation_count"].append(
-                    self.get_quotation_count(sentence)
+                    self.get_quotation_count(text)
                 )
                 features_dict["f_i_question_count"].append(
-                    self.get_question_count(sentence)
+                    self.get_question_count(text)
                 )
                 features_dict["f_i_exclamation_count"].append(
-                    self.get_exclamation_count(sentence)
+                    self.get_exclamation_count(text)
                 )
-                # neg, neu, pos = self.get_sentiment_score(document)
-                # features_dict["f_o_sentiment_score_neg"].append(neg)
-                # features_dict["f_o_sentiment_score_neu"].append(neu)
-                # features_dict["f_o_sentiment_score_pos"].append(pos)
+
+                neg, neu, pos = self.get_sentiment_score(text)
+                features_dict["f_o_sentiment_score_neg"].append(neg)
+                features_dict["f_o_sentiment_score_neu"].append(neu)
+                features_dict["f_o_sentiment_score_pos"].append(pos)
+                features_dict["f_o_swear_word_count"].append(
+                    self.get_swear_word_count(text)
+                )
+
                 features_dict["f_o_he_she_ratio"].append(self.get_he_she_ratio(tokens))
-                # features_dict["f_o_swear_word_count"].append(
-                #     self.get_swear_word_count(document)
-                # )
+
                 features_dict["f_d_character_count"].append(
-                    self.get_character_count(sentence)
+                    self.get_character_count(text)
                 )
                 features_dict["f_d_word_count"].append(self.get_word_count(tokens))
                 features_dict["f_d_sentence_count"].append(
-                    self.get_sentence_count(sentence)
+                    self.get_sentence_count(text)
                 )
                 features_dict["f_d_punctuation_count"].append(
-                    self.get_punctuation_count(sentence)
+                    self.get_punctuation_count(text)
                 )
-                features_dict["f_d_digit_count"].append(self.get_digit_count(sentence))
+                features_dict["f_d_digit_count"].append(self.get_digit_count(text))
                 features_dict["f_d_uppercase_count"].append(
-                    self.get_uppercase_count(sentence)
+                    self.get_uppercase_count(text)
                 )
                 features_dict["f_d_short_word_count"].append(
                     self.get_short_word_count(tokens)
                 )
                 features_dict["f_d_alphabet_count"].append(
-                    self.get_alphabet_count(sentence)
+                    self.get_alphabet_count(text)
                 )
                 features_dict["f_d_contraction_count"].append(
-                    self.get_contraction_count(sentence)
+                    self.get_contraction_count(text)
                 )
                 features_dict["f_d_word_without_vowels_count"].append(
                     self.get_word_without_vowels_count(tokens)
@@ -210,14 +241,14 @@ class Featurizer:
                     self.get_mean_word_length(tokens)
                 )
                 features_dict["f_c_mean_sentence_length"].append(
-                    self.get_mean_sentence_length(tokens)
+                    self.get_mean_sentence_length(text_sentences)
                 )
                 features_dict["f_c_word_length_standard_deviation"].append(
                     self.get_word_length_standard_deviation(tokens)
                 )
-                # features_dict["f_c_sentence_length_standard_deviation"].append(
-                #     self.get_sentence_length_standard_deviation(tokens)
-                # )
+                features_dict["f_c_sentence_length_standard_deviation"].append(
+                    self.get_sentence_length_standard_deviation(text_sentences)
+                )
                 features_dict["f_c_mean_word_frequency"].append(
                     self.get_mean_word_frequency(tokens)
                 )
@@ -225,7 +256,7 @@ class Featurizer:
                     self.get_lexical_diversity_coefficient(tokens)
                 )
                 features_dict["f_c_syntactic_complexity_coefficient"].append(
-                    self.get_syntactic_complexity_coefficient(tokens)
+                    self.get_syntactic_complexity_coefficient(tokens, text_sentences)
                 )
                 features_dict["f_c_herdans_log_type_token_richness"].append(
                     self.get_herdans_log_type_token_richness(tokens)
@@ -235,6 +266,7 @@ class Featurizer:
                 #     features_dict[key].append(value)
 
         features_df = pd.DataFrame.from_dict(features_dict)
+        features_df = features_df.sample(frac=1).reset_index(drop=True)
         # features_df = features_df.set_index("index")
 
         return features_df
@@ -261,7 +293,7 @@ class Featurizer:
         )
 
     def get_cont_punct_count(self, tokens: list) -> int:
-        """Count how many times conitious punctuation occurs"""
+        """Count how many times continuous punctuation occurs"""
         count = 0
         current_len = 1
         for i in range(1, len(tokens)):
@@ -288,13 +320,13 @@ class Featurizer:
         """Count how many sentences end in a exclamation mark"""
         return sum([1 for i in sentences if re.search(r'\!"?$', i) is not None])
 
-    # def get_sentiment_score(self, document: str) -> list[float]:
-    #     """Calculate the sentiment scores of the text: negative, neutral and positive"""
-    #     input_ids = self.sentiment_tokenizer(
-    #         document, return_tensors="pt", max_length=512, truncation=True
-    #     )
-    #     output = self.sentiment_model(**input_ids)
-    #     return softmax(output[0][0].detach().numpy())
+    def get_sentiment_score(self, document: str) -> list[float]:
+        """Calculate the sentiment scores of the text: negative, neutral and positive"""
+        input_ids = self.sentiment_tokenizer(
+            document, return_tensors="pt", max_length=512, truncation=True
+        ).to("cuda")
+        output = self.sentiment_model(**input_ids)
+        return softmax(output[0][0].detach().cpu().numpy())
 
     def get_he_she_ratio(self, tokens: list) -> float:
         """Calculate the ratio between the words 'he' and 'she'"""
@@ -302,10 +334,10 @@ class Featurizer:
             tokens.count("she") + tokens.count("She") + 1
         )
 
-    # def get_swear_word_count(self, document: str) -> int:
-    #     """Count how many swear words are used in the text"""
-    #     censored_text = profanity.censor(document)
-    #     return censored_text.count("****")
+    def get_swear_word_count(self, document: str) -> int:
+        """Count how many swear words are used in the text"""
+        censored_text = profanity.censor(document)
+        return censored_text.count("****")
 
     def get_character_count(self, document: str) -> int:
         """Returns the count of all characters of the given parameter string.
@@ -419,7 +451,7 @@ class Featurizer:
 
     def get_alphabet_count(
         self,
-        document: str,
+        text: str,
         include_uppercase: bool = False,
         include_punctuation: bool = False,
         include_digits: bool = False,
@@ -436,9 +468,9 @@ class Featurizer:
             The length of the alphabet of the `document` variable.
         """
         if not include_uppercase:
-            document = document.lower()
+            text = text.lower()
 
-        text_char_alphabet = set(document)
+        text_char_alphabet = set(text)
 
         if not include_punctuation:
             text_char_alphabet = {
@@ -455,7 +487,7 @@ class Featurizer:
         return len(text_char_alphabet)
 
     def get_contraction_count(
-        self, document: list[str], include_genetive_count: bool = True
+        self, text: list[str], include_genetive_count: bool = True
     ) -> int:
         """Returns the count of all contractions that occur in the given string.
 
@@ -466,10 +498,10 @@ class Featurizer:
         Returns:
             The amount of contractions that occur in the `document` variable.
         """
-        contraction_count = len(contractions.preview(document, 1))
+        contraction_count = len(contractions.preview(text, 1))
 
         if include_genetive_count:
-            tokenized_text = nltk.tokenize.word_tokenize(document)
+            tokenized_text = nltk.tokenize.word_tokenize(text)
             pos_tagged_text = nltk.tag.pos_tag(tokenized_text)
             genetive_count = len([tag for _, tag in pos_tagged_text if tag == "POS"])
 
@@ -532,8 +564,8 @@ class Featurizer:
 
         return round(statistics.mean(word_lengths), 3)
 
-    def get_mean_sentence_length(self, tokens: list[str]) -> int:
-        sentence_lengths = [len(sentence) for sentence in tokens]
+    def get_mean_sentence_length(self, text_sentences: list[str]) -> int:
+        sentence_lengths = [len(sentence) for sentence in text_sentences]
 
         return round(statistics.mean(sentence_lengths), 3)
 
@@ -545,10 +577,13 @@ class Featurizer:
         else:
             return 0
 
-    # def get_sentence_length_standard_deviation(self, tokens: list[str]) -> int:
-    #     sentence_lengths = [len(sentence) for sentence in tokens]
+    def get_sentence_length_standard_deviation(self, text_sentences: list[str]) -> int:
+        sentence_lengths = [len(sentence) for sentence in text_sentences]
 
-    #     return round(statistics.stdev(sentence_lengths), 3)
+        if len(sentence_lengths) > 1:
+            return round(statistics.stdev(sentence_lengths), 3)
+        else:
+            return 0
 
     def get_mean_word_frequency(self, tokens: list[str]) -> int:
         word_frequencies = {}
@@ -570,10 +605,12 @@ class Featurizer:
 
         return round(lexical_diversity_coefficient, 3)
 
-    def get_syntactic_complexity_coefficient(self, tokens: list[str]) -> int:
+    def get_syntactic_complexity_coefficient(
+        self, tokens: list[str], text_sentences
+    ) -> int:
         """From http://repository.utm.md/handle/5014/20225"""
         total_word_count = self.get_word_count(tokens)
-        total_sentence_count = self.get_sentence_count(tokens)
+        total_sentence_count = self.get_sentence_count(text_sentences)
 
         syntactic_complexity_coefficient = 1 - total_sentence_count / total_word_count
 
