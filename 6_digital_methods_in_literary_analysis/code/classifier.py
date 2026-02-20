@@ -13,14 +13,11 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 
 class Classifier:
     def __init__(self) -> None:
-        # self.clf = make_pipeline(StandardScaler(), SVC(gamma="auto", random_state=3131))
         self.clf = make_pipeline(StandardScaler(), xgboost.XGBClassifier(device="cuda"))
 
     def fit(self, train_x: pd.DataFrame, train_y):
         encoded_train_y = LabelEncoder().fit_transform(train_y)
         self.clf.fit(train_x, encoded_train_y)
-
-        # self.clf.fit(train_x, train_y)
 
     def evaluate(self, eval_x: pd.DataFrame, eval_y):
         predictions = self.clf.predict(eval_x)
